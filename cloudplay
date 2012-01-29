@@ -108,11 +108,12 @@ class SoundCloudUser(ServiceUser):
             url = track["stream_url"] + '?' + urlencode(dict(client_id=self.client.id))
             url = url.replace("https://", "http://")
             yield Track(
-                title=unicode(track["title"]),
-                creator=unicode(track["user"]["username"]),
-                location=unicode(url),
-                info=unicode(track["permalink_url"],
-                ))
+                title=track["title"],
+                creator=track["user"]["username"],
+                location=url,
+                info=track["permalink_url"],
+                )
+                
 
 class OfficialFM(Service):
     url = "http://official.fm/"
@@ -142,10 +143,10 @@ class OfficialFMUser(ServiceUser):
     def tracks(self):
         for track in self.client.list("/users/{user}.xspf".format(user=self.user)):
             yield Track(
-                title=unicode(track.xpath("title/text()")[0]),
-                creator=unicode(track.xpath("author/text()")[0]),
-                location=unicode(track.xpath('enclosure[@type="audio/mpeg"]/@url')[0]),
-                info=unicode(track.xpath("link/text()")[0]),
+                title=track.xpath("title/text()")[0],
+                creator=track.xpath("author/text()")[0],
+                location=track.xpath('enclosure[@type="audio/mpeg"]/@url')[0],
+                info=track.xpath("link/text()")[0],
                 )
 
 services = {
@@ -163,10 +164,10 @@ class Playlist(object):
         return xml.tostring(E.playlist(
             E.trackList(*[
                 E.track(
-                    E.location(track.location),
-                    E.title(track.title),
-                    E.creator(track.creator),
-                    E.info(track.info),
+                    E.location(unicode(track.location)),
+                    E.title(unicode(track.title)),
+                    E.creator(unicode(track.creator)),
+                    E.info(unicode(track.info)),
                 ) for track in self.tracks])),
         pretty_print=True)
 
