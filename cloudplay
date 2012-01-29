@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import codecs
 import json
 import logging
 import sys
@@ -7,6 +8,7 @@ import sys
 import requests
 
 from collections import namedtuple
+from functools import partial
 from urllib import urlencode
 from urlparse import urljoin
 
@@ -24,10 +26,11 @@ def main():
     client = SoundCloud()
 
     user = sys.argv[1]
-    tracks = chain(user.tracks for user in client.users(user).followings)
+    tracks = client.users(user).tracks
     playlist = Playlist(tracks=tracks)
 
-    sys.stdout.write(playlist.xspf + "\n")
+    with opener(user + ".xspf", 'w') as f:
+        f.write(playlist.xspf)
 
 Track = namedtuple('Track', 'location creator title')
 
@@ -105,9 +108,6 @@ class Playlist(object):
                     E.title(track.title))
                 for track in self.tracks])))
 
-def chain(iterables):
-    for iterable in iterables:
-        for i in iterable:
-            yield i
+opener = partial(codecs.open, encoding="utf-8")
 
 main()
