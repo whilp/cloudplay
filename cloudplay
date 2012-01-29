@@ -90,10 +90,11 @@ class SoundCloudUser(object):
         for track in self.client.list(resource):
             if not track["streamable"]:
                 continue
+            url = track["stream_url"] + '?' + urlencode(dict(client_id=self.client.client_id))
             yield Track(
-                title=track["title"],
-                creator=track["user"]["username"],
-                location=track["stream_url"])
+                title=unicode(track["title"]),
+                creator=unicode(track["user"]["username"]),
+                location=unicode(url))
 
 class Playlist(object):
 
@@ -106,9 +107,10 @@ class Playlist(object):
             E.trackList(*
                 [E.track(
                     E.location(track.location),
+                    E.title(track.title),
                     E.creator(track.creator),
-                    E.title(track.title))
-                for track in self.tracks])))
+                ) for track in self.tracks])),
+        pretty_print=True)
 
 opener = partial(codecs.open, encoding="utf-8")
 
