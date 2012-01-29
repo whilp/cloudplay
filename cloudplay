@@ -87,12 +87,6 @@ class SoundCloudUser(object):
                 creator=track["user"]["username"],
                 location=track["stream_url"])
 
-    @property
-    def followings(self):
-        resource = "/users/{user}/followings".format(user=self.user)
-        for user in self.client.list(resource):
-            yield SoundCloudUser(user=user["permalink"], client=self.client)
-
 class Playlist(object):
 
     def __init__(self, tracks=None, **kwargs):
