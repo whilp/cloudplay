@@ -28,6 +28,25 @@ Use the power of `xargs` to load up:
     $ ls *.xspf | xargs -n1 mpc add
     $ mpc play
 
+Get some help:
+
+    $ cloudplay -h
+    Usage: cloudplay [options] user
+
+    Build a playlist of all the tracks published by <user>. <user> must be a URL in
+    one of the following formats:
+
+        http://soundcloud.com/<user>
+        http://official.fm/users/<user>
+
+    The playlist is written to the file <user>.xspf.
+
+
+    Options:
+      -v VERBOSE, --verbose=VERBOSE
+                            logging verbosity
+      -h, --help            show this help message and exit
+
 Supported services:
 
 * <http://soundcloud.com>
