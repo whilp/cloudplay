@@ -7,6 +7,7 @@ import sys
 
 from collections import namedtuple
 from functools import partial
+from itertools import count
 from optparse import OptionParser, make_option as Opt
 from urllib import urlencode
 from urlparse import urljoin, urlparse
@@ -27,7 +28,7 @@ def main():
         log.level = max(1, logging.WARNING - (10 * verbose))
         log.addHandler(logging.StreamHandler())
 
-    user = sys.argv[1]
+    (source,) = args
     domain = urlparse(source).netloc
 
     try:
@@ -36,6 +37,7 @@ def main():
         sys.stderr.write("unsupported service: %s\n" % domain)
         return 1
 
+    user = source.split("/")[-1]
     client = service()
 
     tracks = client.users(user).tracks
@@ -50,14 +52,20 @@ options = [
 
 Track = namedtuple('Track', 'location creator title info')
 
-class SoundCloud(object):
+class Service(object):
+
+    def get(self, url, **kwargs):
+        log.debug('GET %s', url)
+        return requests.get(url, **kwargs)
+
+class SoundCloud(Service):
     url = 'https://api.soundcloud.com/'
     id = 'bed25dba5cb38c07ca8d5bb9d92eb0a8'
     limit = 200
     format = 'json'
 
     def users(self, user):
-        user = user.split("/")[-1]
+        user = user.strip("/").split("/")[-1]
         return SoundCloudUser(user=user, client=self)
 
     def list(self, collection, **query):
@@ -83,15 +91,13 @@ class SoundCloud(object):
             for item in items:
                 yield item
 
-    def get(self, url, **kwargs):
-        log.debug('GET %s', url)
-        return requests.get(url, **kwargs)
-
-class SoundCloudUser(object):
+class ServiceUser(object):
 
     def __init__(self, user=None, client=None, **kwargs):
         self.user = user
         self.client = client
+
+class SoundCloudUser(ServiceUser):
 
     @property
     def tracks(self):
@@ -108,8 +114,39 @@ class SoundCloudUser(object):
                 info=unicode(track["permalink_url"],
                 ))
 
-class OfficialFM(object):
-    pass
+class OfficialFM(Service):
+    url = "http://official.fm/"
+    
+    def users(self, user):
+        user = user.strip("/").split("/")[-1]
+        return OfficialFMUser(user=user, client=self)
+
+    def list(self, collection):
+        params = {}
+        for page in count(1):
+            params["page"] = page
+
+            url = urljoin(self.url, collection + "?" + urlencode(params))
+            response = self.get(url)
+            doc = xml.fromstring(response.content)
+            items = doc.xpath("//item")
+            if not items:
+                return
+            log.debug("received %d items", len(items))
+            for item in items:
+                yield item
+
+class OfficialFMUser(ServiceUser):
+
+    @property
+    def tracks(self):
+        for track in self.client.list("/users/{user}.xspf".format(user=self.user)):
+            yield Track(
+                title=unicode(track.xpath("title/text()")[0]),
+                creator=unicode(track.xpath("author/text()")[0]),
+                location=unicode(track.xpath('enclosure[@type="audio/mpeg"]/@url')[0]),
+                info=unicode(track.xpath("link/text()")[0]),
+                )
 
 services = {
     "soundcloud.com": SoundCloud,
