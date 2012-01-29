@@ -15,8 +15,6 @@ from urlparse import urljoin
 from lxml.builder import E
 from lxml import etree as xml
 
-OFFICIALFM_ID = 'IvU9WMP8r3l3n5CJYgf3'
-
 log = logging.getLogger(__name__)
 
 def main():
