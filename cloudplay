@@ -63,22 +63,50 @@ options = [
 Track = namedtuple('Track', 'location creator title info')
 
 class Service(object):
+    """Cloud streaming service."""
 
     def get(self, url, **kwargs):
+        """Send a HTTP GET to the service.
+
+        Returns a :class:`requests.Response` object. See :func:`requests.get`
+        for more information.
+        """
         log.debug('GET %s', url)
         return requests.get(url, **kwargs)
 
+class ServiceUser(object):
+    """A user of a cloud streaming service."""
+
+    def __init__(self, user=None, client=None, **kwargs):
+        self.user = user
+        self.client = client
+
 class SoundCloud(Service):
+    """The soundcloud.com streaming service.
+
+    Soundcloud's read-only API only requires a registered client id; oAuth is
+    not necessary.
+    """
     url = 'https://api.soundcloud.com/'
     id = 'bed25dba5cb38c07ca8d5bb9d92eb0a8'
     limit = 200
     format = 'json'
 
     def users(self, user):
+        """Return a :class:`SoundCloudUser` object.
+        
+        *user* is a URL like `http://soundcloud.com/<user>`.
+        """
         user = user.strip('/').split('/')[-1]
         return SoundCloudUser(user=user, client=self)
 
     def list(self, collection, **query):
+        """Return an iterator yielding items from *collection*.
+
+        *collection* is a resource endpoint in the Soundcloud API (like
+        `/users/<user>/tracks`). Items are objects parsed from the API's JSON
+        response.
+        """
         url = urljoin(self.url, collection)
         params = dict(
             client_id=self.id,
@@ -101,16 +129,12 @@ class SoundCloud(Service):
             for item in items:
                 yield item
 
-class ServiceUser(object):
-
-    def __init__(self, user=None, client=None, **kwargs):
-        self.user = user
-        self.client = client
-
 class SoundCloudUser(ServiceUser):
+    """A user at soundcloud.com."""
 
     @property
     def tracks(self):
+        """An iterator yield :class:`Track` objects published by the user."""
         resource = '/users/{user}/tracks'.format(user=self.user)
         for track in self.client.list(resource):
             if not track['streamable']:
@@ -126,13 +150,24 @@ class SoundCloudUser(ServiceUser):
                 
 
 class OfficialFM(Service):
+    """The official.fm cloud streaming service."""
     url = 'http://official.fm/'
     
     def users(self, user):
+        """Returns a :class:`OfficialFMUser` object.
+        
+        *user* is the user's URL, like `http://official.fm/users/<user>`.
+        """
         user = user.strip('/').split('/')[-1]
         return OfficialFMUser(user=user, client=self)
 
     def list(self, collection):
+        """Yields items from *collection*.
+
+        *collection* is a resource endpoint at official.fm (like
+        "/users/<user>.xspf"). Items are :class:`xml.ElementBase` objects parsed
+        from the API's XML response.
+        """
         params = {}
         for page in count(1):
             params['page'] = page
@@ -148,9 +183,11 @@ class OfficialFM(Service):
                 yield item
 
 class OfficialFMUser(ServiceUser):
+    """A user at official.fm."""
 
     @property
     def tracks(self):
+        """Yields :class:`Track` objects published by the user."""
         for track in self.client.list('/users/{user}.xspf'.format(user=self.user)):
             yield Track(
                 title=track.xpath('title/text()')[0],
@@ -165,12 +202,17 @@ services = {
 }
 
 class Playlist(object):
+    """A playlist.
+
+    Little more than a list of :class:`Track` objects for now.
+    """
 
     def __init__(self, tracks=None, **kwargs):
         self.tracks = tracks
     
     @property
     def xspf(self):
+        """Render the playlist in XSPF format."""
         return xml.tostring(E.playlist(
             E.trackList(*[
                 E.track(
