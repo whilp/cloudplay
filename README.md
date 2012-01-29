@@ -2,8 +2,8 @@
 
 `cloudplay` lets you stream music from your favorite cloud service using your
 favorite music player. If you want to shuffle through
-[http://soundcloud.com/r_co](rico)'s archive of techno mixes on
-[http://soundcloud.com](Soundcloud) with [http://musicpd.org/](mpd), give this a
+[rico](http://soundcloud.com/r_co)'s archive of techno mixes on
+[Soundcloud](http://soundcloud.com) with [mpd](http://musicpd.org/), give this a
 spin:
 
     $ cd ~/your/mpd/music/directory
@@ -32,5 +32,5 @@ Supported playlist formats:
 
 * <http://xspf.org>
 
-Powered by [http://python.org](python), [http://python-requests.org](requests),
-[http://lxml.de](lxml) and techno.
+Powered by [python](http://python.org), [requests](http://python-requests.org),
+[lxml](http://lxml.de) and techno.
