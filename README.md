@@ -33,4 +33,5 @@ Supported playlist formats:
 * <http://xspf.org>
 
 Powered by [python](http://python.org), [requests](http://python-requests.org),
-[lxml](http://lxml.de) and techno.
+[lxml](http://lxml.de) and techno. Provided under the MIT/ISC/X11 license (see
+`LICENSE` file for details).
