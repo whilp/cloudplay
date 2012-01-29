@@ -25,7 +25,7 @@ def main():
     client.session = requests.session()
     client.get = client.session.get
 
-    user = "lt_kije"
+    user = sys.argv[1]
     tracks = chain(user.tracks for user in client.users(user).followings)
     playlist = Playlist(tracks=tracks)
 
