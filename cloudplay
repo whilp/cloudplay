@@ -7,10 +7,11 @@ import sys
 import requests
 
 from collections import namedtuple
-from itertools import chain
-
 from urllib import urlencode
 from urlparse import urljoin
+
+from lxml.builder import E
+from lxml import etree as xml
 
 OFFICIALFM_ID = 'IvU9WMP8r3l3n5CJYgf3'
 
@@ -25,7 +26,10 @@ def main():
     client.get = client.session.get
 
     user = "lt_kije"
-    tracks = (user.tracks for user in client.users(user).followings)
+    tracks = chain(user.tracks for user in client.users(user).followings)
+    playlist = Playlist(tracks=tracks)
+
+    sys.stdout.write(playlist.xspf + "\n")
 
 Track = namedtuple('Track', 'location creator title')
 
@@ -84,5 +88,25 @@ class SoundCloudUser(object):
         resource = "/users/{user}/followings".format(user=self.user)
         for user in self.client.list(resource):
             yield SoundCloudUser(user=user["username"], client=self.client)
+
+class Playlist(object):
+
+    def __init__(self, tracks=None, **kwargs):
+        self.tracks = tracks
+    
+    @property
+    def xspf(self):
+        return xml.tostring(E.playlist(
+            E.trackList(*
+                [E.track(
+                    E.location(track.location),
+                    E.creator(track.creator),
+                    E.title(track.title))
+                for track in self.tracks])))
+
+def chain(iterables):
+    for iterable in iterables:
+        for i in iterable:
+            yield i
 
 main()
