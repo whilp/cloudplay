@@ -26,6 +26,7 @@ Use the power of `xargs` to load up:
 Supported services:
 
 * <http://soundcloud.com>
+* <http://official.fm>
 
 Supported playlist formats:
 
