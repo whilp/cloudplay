@@ -51,8 +51,7 @@ def main():
     user = source.split("/")[-1]
     client = service()
 
-    tracks = client.users(user).tracks
-    playlist = Playlist(tracks=tracks)
+    playlist = Playlist(tracks=client.users(user).tracks)
 
     with opener(user + ".xspf", 'w') as f:
         f.write(playlist.xspf)
