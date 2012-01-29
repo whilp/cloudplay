@@ -40,7 +40,7 @@ options = [
     Opt("-v", "--verbose", default=0, help="logging verbosity"),
 ]
 
-Track = namedtuple('Track', 'location creator title')
+Track = namedtuple('Track', 'location creator title info')
 
 class SoundCloud(object):
     url = 'https://api.soundcloud.com/'
@@ -95,7 +95,9 @@ class SoundCloudUser(object):
             yield Track(
                 title=unicode(track["title"]),
                 creator=unicode(track["user"]["username"]),
-                location=unicode(url))
+                location=unicode(url),
+                info=unicode(track["permalink_url"],
+                )
 
 class Playlist(object):
 
@@ -110,6 +112,7 @@ class Playlist(object):
                     E.location(track.location),
                     E.title(track.title),
                     E.creator(track.creator),
+                    E.info(track.info),
                 ) for track in self.tracks])),
         pretty_print=True)
 
