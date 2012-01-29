@@ -54,7 +54,7 @@ Track = namedtuple('Track', 'location creator title info')
 
 class SoundCloud(object):
     url = 'https://api.soundcloud.com/'
-    client_id = 'bed25dba5cb38c07ca8d5bb9d92eb0a8'
+    id = 'bed25dba5cb38c07ca8d5bb9d92eb0a8'
     limit = 200
     format = 'json'
 
@@ -64,7 +64,7 @@ class SoundCloud(object):
     def list(self, collection, **query):
         url = urljoin(self.url, collection)
         params = dict(
-            client_id=self.client_id,
+            client_id=self.id,
             format=self.format,
             limit=self.limit,
             offset = 0,
@@ -100,7 +100,7 @@ class SoundCloudUser(object):
         for track in self.client.list(resource):
             if not track["streamable"]:
                 continue
-            url = track["stream_url"] + '?' + urlencode(dict(client_id=self.client.client_id))
+            url = track["stream_url"] + '?' + urlencode(dict(client_id=self.client.id))
             url = url.replace("https://", "http://")
             yield Track(
                 title=unicode(track["title"]),
@@ -110,13 +110,7 @@ class SoundCloudUser(object):
                 ))
 
 class OfficialFM(object):
-    # user -> user id
-    # user id -> RSS
-    #   'http://official.fm/tracks.rss?order=ASC&sort=tracks.title&user_id=7927'
-    # paginate
-    # tracks -> track.xspf
-    #   http://official.fm/tracks/82871.xspf
-    # enclosure[@type="stream"]
+    pass
 
 services = {
     "soundcloud.com": SoundCloud,
