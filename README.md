@@ -1,10 +1,9 @@
 # `cloudplay` -- play the cloud
 
 `cloudplay` lets you stream music from your favorite cloud service using your
-favorite music player. If you want to shuffle through
-[rico](http://soundcloud.com/r_co)'s archive of techno mixes on
-[Soundcloud](http://soundcloud.com) with [mpd](http://musicpd.org/), give this a
-spin:
+favorite music player. Shuffle through [rico](http://soundcloud.com/r_co)'s
+archive of techno mixes on [Soundcloud](http://soundcloud.com) with
+[mpd](http://musicpd.org/):
 
     $ cd ~/your/mpd/music/directory
     $ cloudplay r_co
