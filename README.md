@@ -6,7 +6,7 @@ archive of techno mixes on [Soundcloud](http://soundcloud.com) with
 [mpd](http://musicpd.org/):
 
     $ cd ~/your/mpd/music/directory
-    $ cloudplay r_co
+    $ cloudplay http://soundcloud.com/r_co
     $ mpc add r_co.xspf
     $ mpc shuffle
     $ mpc crossfade 10
@@ -14,7 +14,7 @@ archive of techno mixes on [Soundcloud](http://soundcloud.com) with
 
 Use the power of `xargs` to load up:
 
-    $ cat | xargs -n1 cloudplay
+    $ cat | xargs -n1 -I@ cloudplay http://soundcloud.com/@
     smokemachinetaipei
     technopodcast
     johnosborn
