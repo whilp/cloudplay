@@ -5,13 +5,13 @@ import json
 import logging
 import sys
 
-import requests
-
 from collections import namedtuple
 from functools import partial
 from optparse import OptionParser, make_option as Opt
 from urllib import urlencode
 from urlparse import urljoin
+
+import requests
 
 from lxml.builder import E
 from lxml import etree as xml
@@ -107,8 +107,8 @@ class Playlist(object):
     @property
     def xspf(self):
         return xml.tostring(E.playlist(
-            E.trackList(*
-                [E.track(
+            E.trackList(*[
+                E.track(
                     E.location(track.location),
                     E.title(track.title),
                     E.creator(track.creator),
