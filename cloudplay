@@ -97,7 +97,7 @@ class SoundCloudUser(object):
                 creator=unicode(track["user"]["username"]),
                 location=unicode(url),
                 info=unicode(track["permalink_url"],
-                )
+                ))
 
 class Playlist(object):
 
