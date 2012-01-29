@@ -1,4 +1,15 @@
 #!/usr/bin/env python
+"""\
+%prog [options] user
+
+Build a playlist of all the tracks published by <user>. <user> must be a URL in
+one of the following formats:
+
+    http://soundcloud.com/<user>
+    http://official.fm/users/<user>
+
+The playlist is written to the file <user>.xspf.
+"""
 
 import codecs
 import json
