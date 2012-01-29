@@ -19,7 +19,7 @@ Shuffle through [rico](http://soundcloud.com/r_co)'s archive of techno mixes on
 
 Use the power of `xargs` to load up:
 
-    $ cat | xargs -n1 -I@ cloudplay http://soundcloud.com/@
+    $ xargs -n1 -I@ cloudplay http://soundcloud.com/@
     smokemachinetaipei
     technopodcast
     johnosborn
