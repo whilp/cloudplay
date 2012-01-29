@@ -109,8 +109,18 @@ class SoundCloudUser(object):
                 info=unicode(track["permalink_url"],
                 ))
 
+class OfficialFM(object):
+    # user -> user id
+    # user id -> RSS
+    #   'http://official.fm/tracks.rss?order=ASC&sort=tracks.title&user_id=7927'
+    # paginate
+    # tracks -> track.xspf
+    #   http://official.fm/tracks/82871.xspf
+    # enclosure[@type="stream"]
+
 services = {
     "soundcloud.com": SoundCloud,
+    "official.fm": OfficialFM,
 }
 
 class Playlist(object):
