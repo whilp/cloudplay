@@ -45,19 +45,19 @@ def main():
     try:
         service = services[domain]
     except KeyError:
-        sys.stderr.write("unsupported service: %s\n" % domain)
+        sys.stderr.write('unsupported service: %s\n' % domain)
         return 1
 
-    user = source.split("/")[-1]
+    user = source.split('/')[-1]
     client = service()
 
     playlist = Playlist(tracks=client.users(user).tracks)
 
-    with opener(user + ".xspf", 'w') as f:
+    with opener(user + '.xspf', 'w') as f:
         f.write(playlist.xspf)
 
 options = [
-    Opt("-v", "--verbose", default=0, help="logging verbosity"),
+    Opt('-v', '--verbose', default=0, help='logging verbosity'),
 ]
 
 Track = namedtuple('Track', 'location creator title info')
@@ -75,7 +75,7 @@ class SoundCloud(Service):
     format = 'json'
 
     def users(self, user):
-        user = user.strip("/").split("/")[-1]
+        user = user.strip('/').split('/')[-1]
         return SoundCloudUser(user=user, client=self)
 
     def list(self, collection, **query):
@@ -111,39 +111,39 @@ class SoundCloudUser(ServiceUser):
 
     @property
     def tracks(self):
-        resource = "/users/{user}/tracks".format(user=self.user)
+        resource = '/users/{user}/tracks'.format(user=self.user)
         for track in self.client.list(resource):
-            if not track["streamable"]:
+            if not track['streamable']:
                 continue
-            url = track["stream_url"] + '?' + urlencode(dict(client_id=self.client.id))
-            url = url.replace("https://", "http://")
+            url = track['stream_url'] + '?' + urlencode(dict(client_id=self.client.id))
+            url = url.replace('https://', 'http://')
             yield Track(
-                title=track["title"],
-                creator=track["user"]["username"],
+                title=track['title'],
+                creator=track['user']['username'],
                 location=url,
-                info=track["permalink_url"],
+                info=track['permalink_url'],
                 )
                 
 
 class OfficialFM(Service):
-    url = "http://official.fm/"
+    url = 'http://official.fm/'
     
     def users(self, user):
-        user = user.strip("/").split("/")[-1]
+        user = user.strip('/').split('/')[-1]
         return OfficialFMUser(user=user, client=self)
 
     def list(self, collection):
         params = {}
         for page in count(1):
-            params["page"] = page
+            params['page'] = page
 
-            url = urljoin(self.url, collection + "?" + urlencode(params))
+            url = urljoin(self.url, collection + '?' + urlencode(params))
             response = self.get(url)
             doc = xml.fromstring(response.content)
-            items = doc.xpath("//item")
+            items = doc.xpath('//item')
             if not items:
                 return
-            log.debug("received %d items", len(items))
+            log.debug('received %d items', len(items))
             for item in items:
                 yield item
 
@@ -151,17 +151,17 @@ class OfficialFMUser(ServiceUser):
 
     @property
     def tracks(self):
-        for track in self.client.list("/users/{user}.xspf".format(user=self.user)):
+        for track in self.client.list('/users/{user}.xspf'.format(user=self.user)):
             yield Track(
-                title=track.xpath("title/text()")[0],
-                creator=track.xpath("author/text()")[0],
+                title=track.xpath('title/text()')[0],
+                creator=track.xpath('author/text()')[0],
                 location=track.xpath('enclosure[@type="audio/mpeg"]/@url')[0],
-                info=track.xpath("link/text()")[0],
+                info=track.xpath('link/text()')[0],
                 )
 
 services = {
-    "soundcloud.com": SoundCloud,
-    "official.fm": OfficialFM,
+    'soundcloud.com': SoundCloud,
+    'official.fm': OfficialFM,
 }
 
 class Playlist(object):
@@ -181,9 +181,9 @@ class Playlist(object):
                 ) for track in self.tracks])),
         pretty_print=True)
 
-opener = partial(codecs.open, encoding="utf-8")
+opener = partial(codecs.open, encoding='utf-8')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     try:
         sys.exit(main())
     except KeyboardInterrupt:
