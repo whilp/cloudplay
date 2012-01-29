@@ -54,6 +54,7 @@ def main():
     playlist = Playlist(tracks=client.users(user).tracks)
 
     with opener(user + '.xspf', 'w') as f:
+        log.info("writing playlist to %s", f.name)
         f.write(playlist.xspf)
 
 options = [
