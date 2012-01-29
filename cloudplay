@@ -9,7 +9,7 @@ from collections import namedtuple
 from functools import partial
 from optparse import OptionParser, make_option as Opt
 from urllib import urlencode
-from urlparse import urljoin
+from urlparse import urljoin, urlparse
 
 import requests
 
@@ -28,8 +28,17 @@ def main():
         log.addHandler(logging.StreamHandler())
 
     source = sys.argv[1]
+    domain = urlparse(source).netloc
+
+    try:
+        service = services[domain]
+    except KeyError:
+        sys.stderr.write("unsupported service: %s\n" % domain)
+        return 1
+
     user = source.split("/")[-1]
-    client = SoundCloud()
+    
+    client = service()
 
     tracks = client.users(user).tracks
     playlist = Playlist(tracks=tracks)
@@ -99,6 +108,10 @@ class SoundCloudUser(object):
                 location=unicode(url),
                 info=unicode(track["permalink_url"],
                 ))
+
+services = {
+    "soundcloud.com": SoundCloud,
+}
 
 class Playlist(object):
 
