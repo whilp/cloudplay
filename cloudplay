@@ -22,8 +22,6 @@ def main():
     log.addHandler(logging.StreamHandler())
 
     client = SoundCloud()
-    client.session = requests.session()
-    client.get = client.session.get
 
     user = sys.argv[1]
     tracks = chain(user.tracks for user in client.users(user).followings)
@@ -42,8 +40,6 @@ class SoundCloud(object):
     def users(self, user):
         return SoundCloudUser(user=user, client=self)
 
-    get = requests.get
-
     def list(self, collection, **query):
         url = urljoin(self.url, collection)
         params = dict(
@@ -57,16 +53,19 @@ class SoundCloud(object):
         url = urljoin(self.url, collection)
 
         while True:
-            requrl = url + '?' + urlencode(params)
-            log.debug('GET %s', requrl)
-            response = self.get(requrl)
+            response = self.get(url + '?' + urlencode(params))
             items = json.loads(response.text)
-            params['offset'] += len(items)
-            log.debug('received %d items', len(items))
             if not items:
                 return
+
+            params['offset'] += len(items)
+            log.debug('received %d items', len(items))
             for item in items:
                 yield item
+
+    def get(self, url, **kwargs):
+        log.debug('GET %s', url)
+        return requests.get(url, **kwargs)
 
 class SoundCloudUser(object):
 
@@ -78,6 +77,8 @@ class SoundCloudUser(object):
     def tracks(self):
         resource = "/users/{user}/tracks".format(user=self.user)
         for track in self.client.list(resource):
+            if not track["streamable"]:
+                continue
             yield Track(
                 title=track["title"],
                 creator=track["user"]["username"],
@@ -87,7 +88,7 @@ class SoundCloudUser(object):
     def followings(self):
         resource = "/users/{user}/followings".format(user=self.user)
         for user in self.client.list(resource):
-            yield SoundCloudUser(user=user["username"], client=self.client)
+            yield SoundCloudUser(user=user["permalink"], client=self.client)
 
 class Playlist(object):
 
