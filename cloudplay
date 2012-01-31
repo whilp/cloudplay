@@ -176,7 +176,7 @@ class OfficialFM(Service):
             url = urljoin(self.url, collection + '?' + urlencode(params))
             response = self.get(url)
             doc = xml.fromstring(response.content)
-            current = int(doc.xpath("//pages/@current_page")[0])
+            current = int((doc.xpath("//pages/@current_page") or [0])[0])
             if current < page:
                 return
 
